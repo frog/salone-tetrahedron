@@ -9,7 +9,7 @@ var GRID_COLUMNS = 4;
 var GRID_ROWS = 4;
 
 // Starting mode
-var mode = MODE_OFF;
+var mode = MODE_COLOR_CYCLE_SYNC;
 
 // Allocate empty grid
 // grid accessed using: grid[column_no][row_no]
