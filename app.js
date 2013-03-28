@@ -41,7 +41,7 @@ var server = http.createServer(app).listen(app.get('port'), function(){
 });
 
 // Socket.io
-var io = require('socket.io').listen(server, {log: true });
+var io = require('socket.io').listen(server, {log: false });
 require('./salone')({app: app, io: io, DEV: DEV });
 
 
