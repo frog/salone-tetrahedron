@@ -18,7 +18,7 @@ $(document).ready(function() {
   });
 
   // Setup socket connection
-  var socket = io.connect('http://10.228.81.10:3000');
+  var socket = io.connect();
   socket.on('update', function (data) {
  	$('body').css('background-color', data.bgcolor);
   });
