@@ -24,8 +24,8 @@
 /// </summary>
 
 #include <Arduino.h>
-#include "DistanceGP2Y0A21YK.h"
-#include "DistanceGP2Y0A21YK_LUTs.h"
+#include <DistanceGP2Y0A21YK.h>
+#include <DistanceGP2Y0A21YK_LUTs.h>
 
 /// <summary>
 /// Constructor
