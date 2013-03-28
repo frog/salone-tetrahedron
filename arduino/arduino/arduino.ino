@@ -9,7 +9,6 @@ const int HIGHER_BOUND = 30;
 const int LOOP_LENGTH = 50;
 
 int distance;
-boolean is_hand = false;
 unsigned long time;
 unsigned long loop_delay;
 
@@ -25,17 +24,8 @@ void loop() {
   time = millis();
   distance = Dist.getDistanceCentimeter();
   if (distance >= LOWER_BOUND && distance < HIGHER_BOUND) {
-    if (!is_hand) {
-      is_hand = true;
-      Serial.println("ON");
-    }
     Serial.print("->");
     Serial.println(distance);
-  } else {
-     if (is_hand) {
-      is_hand = false;
-      Serial.println("OFF");
-    }
   }    
   int loop_delay = LOOP_LENGTH - (time - millis());
   if (loop_delay < 0) {
