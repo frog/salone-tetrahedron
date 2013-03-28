@@ -9,6 +9,7 @@ if (!process.argv || process.argv.length > 3) {
 			console.log(result[i].comName);
 		}
 		console.log("");
+		
 		process.exit(1);
 	});
 } else {
