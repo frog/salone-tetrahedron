@@ -122,6 +122,7 @@ module.exports = function(opts) {
     // Add client to first available position in the grid
     upsertClient(socket, -1, -1);
     if (socketCounter == 1) {
+    	console.log('first client detected, sending start signal');
     	this.emit('start');
     }
 
@@ -134,10 +135,10 @@ module.exports = function(opts) {
     });
 
     socket.on('startnext', function (data) {
-      // console.log('received startnext from ', findSocketInGrid(this));
+      console.log('received startnext from ', findSocketInGrid(this));
       var next = findNextSocket(this);
       if (typeof(next) !== 'undefined') {
-      	// console.log('sending start to ', findSocketInGrid(next));
+      	console.log('sending start to ', findSocketInGrid(next));
         next.emit('start', data);
       }
     });

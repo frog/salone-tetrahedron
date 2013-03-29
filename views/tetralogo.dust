@@ -9,10 +9,12 @@
 
   <body>
 	<h1>Tetralogo - single page version</h1>
-    <!-- <script src="http://code.jquery.com/jquery.js"></script> -->
-	<!-- <script src="/socket.io/socket.io.js"></script> -->
+	<div id="tetralogo"></div>
+ 	<script src="http://code.jquery.com/jquery.js"></script>
+	<script src="/socket.io/socket.io.js"></script>
 	<script src="js/three.min.js"></script>
 	<script src="/js/stats.min.js"></script>	
+	<script src="/js/fullscreen.js"></script>	
 	<script src="/js/tetralogo.js"></script>
   </body>
 </html>

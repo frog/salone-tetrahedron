@@ -16,5 +16,12 @@ module.exports = function(opts) {
 		  title: 'Tetralogo'
 		});
     });
+
+    app.get('/tetralogomulti', function(req, res) {
+		res.render('tetralogo_multi', {
+		  title: 'Tetralogo multi'
+		});
+    });
+
 };
 

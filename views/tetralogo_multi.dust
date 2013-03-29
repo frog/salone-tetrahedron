@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>Main view</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="/css/tetralogo.css" rel="stylesheet">
+  </head>
+
+  <body>
+	<h1>Tetralogo - multi page version</h1>
+        <div id="tetralogo"></div>
+	<script src="http://code.jquery.com/jquery.js"></script>
+	<script src="socket.io/socket.io.js"></script>
+	<script src="js/three.min.js"></script>
+	<script src="js/tween.min.js"></script>
+	<script src="js/stats.min.js"></script>	
+	<script src="js/tetralogo_multi.js"></script>
+  </body>
+</html>
+
+

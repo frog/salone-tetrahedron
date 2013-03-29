@@ -1,7 +1,6 @@
 document.cancelFullScreen = document.webkitExitFullscreen || document.mozCancelFullScreen || document.exitFullscreen;
 
-// var elem = document.documentElement; // the whole page
-var elem = document.getElementById('tetralogo')
+var elem = document.getElementById('tetralogo');
 
 function toggleFS(el) {
     if (el.webkitEnterFullScreen) {
@@ -24,13 +23,11 @@ function onFullScreenEnter() {
 };
 
 // Called whenever the browser exits fullscreen.
-
 function onFullScreenExit() {
     console.log("Exited fullscreen!");
 };
 
 // Note: FF nightly needs about:config full-screen-api.enabled set to true.
-
 function enterFullscreen() {
     console.log("enterFullscreen()");
     elem.onwebkitfullscreenchange = onFullScreenEnter;
@@ -45,11 +42,11 @@ function enterFullscreen() {
             elem.requestFullscreen();
         }
     }
-    document.getElementById('enter-exit-fs').onclick = exitFullscreen;
+    // document.getElementById('enter-exit-fs').onclick = exitFullscreen;
 }
 
 function exitFullscreen() {
     console.log("exitFullscreen()");
     document.cancelFullScreen();
-    document.getElementById('enter-exit-fs').onclick = enterFullscreen;
+    // document.getElementById('enter-exit-fs').onclick = enterFullscreen;
 }
