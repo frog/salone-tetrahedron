@@ -6,11 +6,15 @@ module.exports = function(opts) {
     var app = opts.app;
 
     app.get('/', function(req, res) {
-		res.render('main_view', {});
+		res.render('main_view', {
+		  title: 'Main view'
+		});
     });
 
     app.get('/tetralogo', function(req, res) {
-		res.render('tetralogo', {});
+		res.render('tetralogo', {
+		  title: 'Tetralogo'
+		});
     });
 };
 
