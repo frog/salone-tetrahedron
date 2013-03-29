@@ -29,6 +29,7 @@ void loop() {
   if (distance >= LOWER_BOUND && distance < HIGHER_BOUND) {
     if (!is_hand) {
       is_hand = true;
+      Serial.print("->");
       Serial.println("ON");
       digitalWrite(led, HIGH);  
     }
@@ -37,6 +38,7 @@ void loop() {
   } else {
      if (is_hand) {
       is_hand = false;
+      Serial.print("->");
       Serial.println("OFF");
       digitalWrite(led, LOW);  
     }
