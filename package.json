@@ -12,6 +12,7 @@
         "dustjs-linkedin": ">= 1.2.0",
         "socket.io": ">= 0.0.1",
         "requirejs": ">= 2.0.6",
-        "serialport": "latest"
+        "serialport": "1.1.0",
+        "keypress": "0.1.0"
     }
 }

@@ -43,7 +43,29 @@ define(['util', 'serialport', 'events'], function (util, serial, events) {
         });
 
         self.serialPort.on('error', function (err) {
-            console.log('SERIAL ERROR ', err);
+            if (err.message.indexOf('Cannot open') == 0) {
+
+                console.log("-->Error while opening serial port.");
+                console.log("-->Switching to emulation mode...");
+                console.log("-->Press 'h' to toggle hand detection.");
+
+                var fakeHandOn = false;
+                // make `process.stdin` begin emitting "keypress" events
+                require('keypress')(process.stdin);
+                // listen for the "keypress" event
+                process.stdin.on('keypress', function (ch, key) {
+                    if (key && key.name == 'h') {
+                        self.emit(fakeHandOn ? 'off' : 'on');
+                        fakeHandOn = !fakeHandOn;
+                    } else if (key && key.ctrl && key.name == 'c') {
+                        process.exit();
+                    }
+                });
+                process.stdin.setRawMode(true);
+                process.stdin.resume();
+            } else {
+                console.log('SERIAL ERROR ', err);
+            }
         });
 
         var handleData = function (data) {
