@@ -12,9 +12,9 @@
         <div id="tetralogo"></div>
 	<script src="http://code.jquery.com/jquery.js"></script>
 	<script src="socket.io/socket.io.js"></script>
-	<script src="js/three.min.js"></script>
-	<script src="js/tween.min.js"></script>
-	<script src="js/stats.min.js"></script>	
+	<script src="js/three-r57.js"></script>
+	<script src="/js/stats-r11.js"></script>
+	<script src="js/tween-r10.min.js"></script>
 	<script src="js/tetralogo_multi.js"></script>
   </body>
 </html>
