@@ -27,7 +27,7 @@
 		var require = {
 			baseUrl: "/js",
 			paths: {
-				"socket.io" : "/socket.io/socket.io.js",
+				"socket.io" : "/socket.io/socket.io",
 				"three" : [ "http://cdnjs.cloudflare.com/ajax/libs/three.js/r57/three.min",
 							"three-r57" ],
 				"stats" : [ "http://cdnjs.cloudflare.com/ajax/libs/stats.js/r11/Stats",
@@ -39,7 +39,9 @@
 	</script>
 
     <script data-main="saloneclient" src="//cdnjs.cloudflare.com/ajax/libs/require.js/2.1.5/require.min.js"></script>
-	<script>window.require || document.write('<script data-main="js/saloneclient.js" src="/js/require-2.1.5.js">\x3C/script>')</script>
+	<script>window.require || document.write('<script src="/js/require-2.1.5.js">\x3C/script>')</script>
+
+	<!--script src="js/saloneclient-built.js"></script-->
 
 	<script>
 	//window.open('http://localhost:3001','mywindow','width=400,height=200,left=0,top=100,screenX=0,screenY=100')

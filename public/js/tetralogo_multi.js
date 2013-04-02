@@ -13,9 +13,8 @@ define(['three', 'stats', 'fullscreen', 'tween', 'socket.io'], function () {
 
 
     var width = viewport().width;
-    ;
     var height = viewport().height;
-    var radius = 200;
+    var radius = height / 2;
 
     var screenStartPosition, screenEndPosition;
     var worldStartPosition, worldEndPosition;
@@ -50,17 +49,17 @@ define(['three', 'stats', 'fullscreen', 'tween', 'socket.io'], function () {
         };
         material = new THREE.MeshBasicMaterial(options);
         mesh = new THREE.Mesh(geometry, material);
-        mesh.position.y = radius;
+        mesh.position.y = 0;
         scene.add(mesh);
 
         mesh2 = new THREE.Mesh(geometry, material);
         mesh2.position.y = -radius;
-        scene.add(mesh2);
+        //scene.add(mesh2);
 
         // add a sphere
         orbGeometry = new THREE.SphereGeometry(radius, 10, 10);
         orb = new THREE.Mesh(orbGeometry, material);
-        scene.add(orb);
+        //scene.add(orb);
 
         // set up the renderer and render the scene
         renderer = new THREE.WebGLRenderer();

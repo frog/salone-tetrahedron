@@ -134,7 +134,7 @@ module.exports = function (opts) {
         });
 
         socket.on('startnext', function (data) {
-            console.log('received startnext from ', findSocketInGrid(this));
+            console.log('received startnext from ', findSocketInGrid(this), data);
             var next = findNextSocket(this);
             if (typeof(next) !== 'undefined') {
                 console.log('sending start to ', findSocketInGrid(next));

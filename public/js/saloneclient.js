@@ -1,4 +1,4 @@
-define(['socket.io', 'tetralogo_multi'], function () {
+define(['socket.io', 'tetralogo'], function (_, tetralogo) {
     $(document).ready(function () {
         console.log("Document ready");
         // Configure panel configuration
