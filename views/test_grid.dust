@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>{title}</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  </head>
+
+  <body>
+	<h1>{title}</h1>
+	<script>
+		var grid = {};
+
+		function popNext() {
+			var pars = 'width='+width+',height='+height+',left='+x+',top='+y+',screenX='+x+',screenY='+y;
+			console.log('pars' , pars);
+			window.open('http://localhost:3000',i+'x'+j,pars);
+			i++;
+			if (i >= grid.cols) {
+				i = 0;
+				j++;
+				if (j >= grid.rows)  {
+					return;
+				}
+			}
+			x = width * i;
+			y = height * j;
+			setTimeout(popNext, 3000);
+		}
+
+		grid.rows = {grid.rows};
+		grid.cols = {grid.cols};
+		var width = 200;
+		var height = 200;
+		var x = 0;
+		var y = 0;
+		var i = 0;
+		var j = 0;
+
+		popNext();
+	</script>
+  </body>
+</html>
+
+

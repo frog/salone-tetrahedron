@@ -5,8 +5,8 @@ var MODE_COLOR_CYCLE_SNAKE = 2;
 var MODE_COLOR_CYCLE_MATRIX = 3;
 
 // Grid dimensions
-var GRID_COLUMNS = 4;
-var GRID_ROWS = 4;
+var GRID_COLUMNS = 3;
+var GRID_ROWS = 2;
 
 // Starting mode
 var mode = MODE_COLOR_CYCLE_SYNC;
@@ -58,6 +58,7 @@ function removeClient(socket) {
 
     // Delete client from grid
     if (oldRow != -1) {
+        console.log('remove client at '+oldColumn+', '+oldRow);
         grid[oldColumn][oldRow] = undefined;
         socketCounter--;
     }
@@ -139,9 +140,12 @@ module.exports = function (opts) {
             if (typeof(next) !== 'undefined') {
                 console.log('sending start to ', findSocketInGrid(next));
                 next.emit('start', data);
+            } else {
+
             }
         });
     });
+    return {rows: GRID_ROWS, cols: GRID_COLUMNS};
 };
 
 

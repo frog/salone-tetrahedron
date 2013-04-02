@@ -24,9 +24,11 @@ define(['three', 'stats', 'jquery_fullscreen', 'tween', 'socket.io'], function (
 
     socket.on('start', function (data) {
         console.log('received start event with data', data);
+        if (data) {
+            mesh.rotation.x = data.rotx;
+            mesh.rotation.y = data.roty;
+        }
         setupTween();
-        mesh.rotation.x = data.rotx;
-        mesh.rotation.y = data.roty;
     });
 
     function init() {
@@ -68,46 +70,43 @@ define(['three', 'stats', 'jquery_fullscreen', 'tween', 'socket.io'], function (
 
         screenStartPosition = {x: 1, y: height / 2};
         screenEndPosition = {x: width, y: height / 2};
-        console.log('screenStartPosition: ', screenStartPosition);
-        console.log('screenEndPosition: ', screenEndPosition);
+        console.log('screen, start[', screenStartPosition, "], stop[", screenEndPosition, "]");
 
         worldStartPosition = projectToWorld(screenStartPosition);
         worldEndPosition = projectToWorld(screenEndPosition);
-        console.log('worldStartPosition: ', worldStartPosition);
-        console.log('worldEndPosition: ', worldEndPosition);
+        console.log('world, start[', worldStartPosition, "], stop[", worldEndPosition, "]");
+
         worldVisibleWidth = worldEndPosition.x;
+
+        //we want to roll a little bit over the end of window
         worldStartPosition.x -= radius * 2;
         worldEndPosition.x += radius * 2;
 
-        console.log('worldStartPosition2: ', worldStartPosition);
-        console.log('worldEndPosition2: ', worldEndPosition);
+        var pos = worldStartPosition;
+        var rot = {x: mesh.rotation.x, y: mesh.rotation.y};
 
-        var current = worldStartPosition;
-        var rot = {rotx: 0, roty: 0};
-        // var easing = TWEEN.Easing.Elastic.InOut;
         var easing = TWEEN.Easing.Linear.None;
-        // var easing = TWEEN.Easing.Cubic.Out;
         var delay = 0;
         var duration = 3000;
 
         // build the tween to go from left to right
-        var tweenHead = new TWEEN.Tween(current)
+        var tweenHead = new TWEEN.Tween(pos)
             .to({x: worldEndPosition.x}, duration)
             .easing(easing)
             .delay(delay).onUpdate(function () {
-                mesh.position.x = current.x;
+                mesh.position.x = pos.x;
             });
 
         var tweenRot = new TWEEN.Tween(rot)
-            .to({rotx: 4, roty: 10}, duration)
+            .to({x: rot.x + 4, y: rot.y + 10}, duration)
             .easing(easing)
             .delay(delay)
             .onUpdate(function () {
-                mesh.rotation.x = rot.rotx;
-                mesh.rotation.y = rot.roty;
+                mesh.rotation.x = rot.x;
+                mesh.rotation.y = rot.y;
             });
-        
-        // start the first
+
+        // start the animations
         tweenHead.start();
         tweenRot.start();
     }
@@ -233,6 +232,7 @@ define(['three', 'stats', 'jquery_fullscreen', 'tween', 'socket.io'], function (
     var stats = new Stats();
     stats.domElement.style.position = 'absolute';
     $('#tetralogo').append(stats.domElement);
+    $(stats.domElement).hide();
 
     init();
     animate();

@@ -23,5 +23,12 @@ module.exports = function(opts) {
 		});
     });
 
+    app.get('/test_grid', function(req, res) {
+		res.render('test_grid', {
+		  title: 'close me after you\'ve done',
+          grid: opts.grid
+		});
+    });
+
 };
 

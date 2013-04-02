@@ -42,10 +42,6 @@
 	<script>window.require || document.write('<script src="/js/require-2.1.5.js">\x3C/script>')</script>
 
 	<!--script src="js/saloneclient-built.js"></script-->
-
-	<script>
-	//window.open('http://localhost:3001','mywindow','width=400,height=200,left=0,top=100,screenX=0,screenY=100')
-	</script>
 	</body>
 </html>
 

@@ -40,15 +40,15 @@ app.configure('production', function () {
     app.use(express.errorHandler());
 });
 
-require('./routes')({app: app});
-
 var server = http.createServer(app).listen(app.get('port'), function () {
     console.log("Express server listening on port " + app.get('port'));
 });
 
 // Socket.io
 var io = require('socket.io').listen(server, {log: false });
-require('./salone')({app: app, io: io, DEV: DEV });
+var grid = require('./salone')({app: app, io: io, DEV: DEV });
+console.log('grid ', grid);
+require('./routes')({app: app, grid: grid});
 
 requirejs(['sensor'], function (Sensor) {
     var sensor = new Sensor();
