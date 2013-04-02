@@ -1,6 +1,9 @@
 /**
  * Sensor object for receiving updates from Salone Arduino sensor.
  * Will process simple events like hand presence, absence, and estimated distance.
+ * <br/>
+ * If serial connection is not detected, will fire up a simple keypress based
+ * emulation mode.
  */
 define(['util', 'serialport', 'events'], function (util, serial, events) {
 
@@ -27,6 +30,23 @@ define(['util', 'serialport', 'events'], function (util, serial, events) {
     };
     util.inherits(Sensor, events.EventEmitter);
 
+    function handSimulator() {
+        var fakeHandOn = false;
+        // make `process.stdin` begin emitting "keypress" events
+        require('keypress')(process.stdin);
+        // listen for the "keypress" event
+        process.stdin.on('keypress', function (ch, key) {
+            if (key && key.name == 'h') {
+                self.emit(fakeHandOn ? 'off' : 'on');
+                fakeHandOn = !fakeHandOn;
+            } else if (key && key.ctrl && key.name == 'c') {
+                process.exit();
+            }
+        });
+        process.stdin.setRawMode(true);
+        process.stdin.resume();
+    };
+
     /**
      * Connects this node instance to the Arduino via a specified serial port.
      * Sets up connection and handles data.
@@ -48,21 +68,7 @@ define(['util', 'serialport', 'events'], function (util, serial, events) {
                 console.log("-->Error while opening serial port.");
                 console.log("-->Switching to emulation mode...");
                 console.log("-->Press 'h' to toggle hand detection.");
-
-                var fakeHandOn = false;
-                // make `process.stdin` begin emitting "keypress" events
-                require('keypress')(process.stdin);
-                // listen for the "keypress" event
-                process.stdin.on('keypress', function (ch, key) {
-                    if (key && key.name == 'h') {
-                        self.emit(fakeHandOn ? 'off' : 'on');
-                        fakeHandOn = !fakeHandOn;
-                    } else if (key && key.ctrl && key.name == 'c') {
-                        process.exit();
-                    }
-                });
-                process.stdin.setRawMode(true);
-                process.stdin.resume();
+                handSimulator();
             } else {
                 console.log('SERIAL ERROR ', err);
             }

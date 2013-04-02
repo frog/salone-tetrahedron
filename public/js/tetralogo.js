@@ -30,34 +30,32 @@ define(['three', 'stats', 'jquery_fullscreen', 'tween', 'socket.io'], function (
     });
 
     function init() {
-
-        width = viewport().width;
-        height = viewport().height;
-        radius = height / 2;
+        radius = 0.6;
         // create the scene
         scene = new THREE.Scene();
-
-        // add a camera
-        // camera = new THREE.PerspectiveCamera(50, width / height, 1, 2000);
-        camera = new THREE.OrthographicCamera(width / -2, width / 2, height / 2, height / -2, -2000, 2000);
-        camera.position.z = 1000;
         scene.add(camera);
 
         // add a tetrahedron
         geometry = new THREE.TetrahedronGeometry(radius);
         material = new THREE.MeshBasicMaterial({
-                    color: 0xfcf395,
-                    wireframe: true,
-                    wireframeLinewidth: 8,
-                    side: THREE.DoubleSide
-                });
+            color: 0xfcf395,
+            wireframe: true,
+            wireframeLinewidth: 8,
+            side: THREE.DoubleSide
+        });
         mesh = new THREE.Mesh(geometry, material);
 
         scene.add(mesh);
 
-        // set up the renderer and render the scene
+
+        // add a camera
+        // camera = new THREE.PerspectiveCamera(50, width / height, 1, 2000);
+        //camera = new THREE.OrthographicCamera(width / -2, width / 2, height / 2, height / -2, -2000, 2000);
+
+        camera = new THREE.OrthographicCamera();
         renderer = new THREE.WebGLRenderer();
-        renderer.setSize(width, height);
+
+        resetRenderer();
         $('#tetralogo').append(renderer.domElement);
         renderer.render(scene, camera);
     }
@@ -67,14 +65,6 @@ define(['three', 'stats', 'jquery_fullscreen', 'tween', 'socket.io'], function (
         // remove previous tweens if needed
         TWEEN.removeAll();
 
-        // define the internal update function of the tween animation
-        var update = function () {
-            mesh.position.x = current.x;
-            // mesh.position.y = Math.cos(current.x/100)*100;
-            mesh.rotation.x += spinX;
-            mesh.rotation.y += spinY;
-        }
-
 
         screenStartPosition = {x: 1, y: height / 2};
         screenEndPosition = {x: width, y: height / 2};
@@ -83,42 +73,43 @@ define(['three', 'stats', 'jquery_fullscreen', 'tween', 'socket.io'], function (
 
         worldStartPosition = projectToWorld(screenStartPosition);
         worldEndPosition = projectToWorld(screenEndPosition);
-        //console.log('worldStartPosition: ', worldStartPosition);
-        //console.log('worldEndPosition: ', worldEndPosition);
-        worldVisibleWidth = worldEndPosition.x
-        worldStartPosition.x -= radius * 1.1;
-        worldEndPosition.x += radius * 1.1;
+        console.log('worldStartPosition: ', worldStartPosition);
+        console.log('worldEndPosition: ', worldEndPosition);
+        worldVisibleWidth = worldEndPosition.x;
+        worldStartPosition.x -= radius * 2;
+        worldEndPosition.x += radius * 2;
+
+        console.log('worldStartPosition2: ', worldStartPosition);
+        console.log('worldEndPosition2: ', worldEndPosition);
 
         var current = worldStartPosition;
+        var rot = {rotx: 0, roty: 0};
         // var easing = TWEEN.Easing.Elastic.InOut;
         var easing = TWEEN.Easing.Linear.None;
         // var easing = TWEEN.Easing.Cubic.Out;
         var delay = 0;
         var duration = 3000;
-        var spinX = 0.02;
-        var spinY = 0.05;
 
         // build the tween to go from left to right
         var tweenHead = new TWEEN.Tween(current)
             .to({x: worldEndPosition.x}, duration)
             .easing(easing)
-            .delay(delay)
-            .onUpdate(update);
+            .delay(delay).onUpdate(function () {
+                mesh.position.x = current.x;
+            });
 
-        // ...and back
-        var tweenBack = new TWEEN.Tween(current)
-            .to({x: worldStartPosition.x}, 0)
-            .delay(delay)
+        var tweenRot = new TWEEN.Tween(rot)
+            .to({rotx: 4, roty: 10}, duration)
             .easing(easing)
-            .onUpdate(update);
-
-        // after tweenHead do tweenBack
-        //tweenHead.chain(tweenBack);
-        // after tweenBack do tweenHead, to create an animation loop
-        //tweenBack.chain(tweenHead);
-
+            .delay(delay)
+            .onUpdate(function () {
+                mesh.rotation.x = rot.rotx;
+                mesh.rotation.y = rot.roty;
+            });
+        
         // start the first
         tweenHead.start();
+        tweenRot.start();
     }
 
     function animate() {
@@ -180,18 +171,27 @@ define(['three', 'stats', 'jquery_fullscreen', 'tween', 'socket.io'], function (
     function resetRenderer() {
         width = viewport().width;
         height = viewport().height;
+        console.log("[w: " + width + ", h: " + height + "]");
+        var normWidth = 2.0;
+        var normHeight = 2.0;
+        if (height < width) {
+            normHeight = 2.0;
+            normWidth = normHeight * (width / height);
+        } else if (width < height) {
+            normWidth = 2.0;
+            normHeight = normWidth * (height / width);
+        }
+        camera.left = normWidth / -2;
+        camera.right = normWidth / 2;
+        camera.top = normHeight / 2;
+        camera.bottom = normHeight / -2;
+        camera.near = -1;
+        camera.far = 2;
+        camera.position.z = 1;
+        camera.updateProjectionMatrix();
+
         // notify the renderer of the size change
         renderer.setSize(width, height);
-        // update the camera
-
-        // camera.aspect = width / height; // this is for perspective camera
-
-        camera.left = width / -2;
-        camera.right = width / 2;
-        camera.top = height / 2;
-        camera.bottom = height / -2;
-        camera.updateProjectionMatrix();
-        setupTween();
     }
 
     window.onresize = function (event) {
@@ -216,7 +216,7 @@ define(['three', 'stats', 'jquery_fullscreen', 'tween', 'socket.io'], function (
 
             case 13: // ENTER. ESC should also take you out of fullscreen by default.
                 e.preventDefault();
-                $.exitFullscreen(); // explicitly go out of fs.
+                $('body').exitFullscreen(); // explicitly go out of fs.
                 break;
             case 70: // 'f' key
                 $('body').fullscreen();
