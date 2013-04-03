@@ -5,8 +5,8 @@ var MODE_COLOR_CYCLE_SNAKE = 2;
 var MODE_COLOR_CYCLE_MATRIX = 3;
 
 // Grid dimensions
-var GRID_COLUMNS = 2;
-var GRID_ROWS = 2;
+var GRID_COLUMNS = 3;
+var GRID_ROWS = 3;
 
 // Starting mode
 var mode = MODE_COLOR_CYCLE_SYNC;
@@ -19,6 +19,7 @@ for (var i = 0; i < GRID_COLUMNS; i++) {
 }
 var socketCounter = 0; // track number of clients
 
+/*
 function upsertClient(socket, row, column) {
     // Remove client from grid (if present)
     removeClient(socket);
@@ -44,6 +45,32 @@ function upsertClient(socket, row, column) {
     socket.emit('position', { row: row, column: column });
 
 }
+*/
+
+// Look for an empty slot in the grid and return its row and column indexes
+function firstAvailableSlot() {
+	for (var column = 0; column < GRID_COLUMNS; column++) {
+		for (var row = 0; row < GRID_ROWS; row++) {
+			if (typeof(grid[column][row]) == 'undefined') {
+                return { row: row, column: column };
+            }
+        }
+    }
+    return; // undefined
+}
+
+// Add a client to first available slot, if any
+function addClient(socket) {
+	var position = firstAvailableSlot();
+	if (typeof(position) !== 'undefined') {
+		// available slot found, adding client and returning its position
+		grid[position.column][position.row] = socket;
+		socketCounter++;
+		console.log("upsert at column ", position.column, ", row ", position.row, "; counter = ", socketCounter);
+	}
+	// return position (undefined if no available was found)
+	return position;
+}				
 
 function removeClient(socket) {
     // Check if client is present
@@ -127,11 +154,18 @@ module.exports = function (opts) {
 
     io.sockets.on('connection', function (socket) {
         // Add client to first available position in the grid
-        upsertClient(socket, -1, -1);
-        if (socketCounter == 1) {
-            console.log('first client detected, sending start signal');
-            this.emit('start');
-        }
+        // upsertClient(socket, -1, -1);
+        var position = addClient(socket);
+        if (typeof(position !== 'undefined')) {
+			// Inform client of position
+			this.emit('position', position);
+			if (socketCounter == 1) {
+				console.log('first client detected, sending start signal');
+				this.emit('start');
+			}
+		} else {
+			this.emit('server full');
+		}
 
         socket.on('config', function (data) {
             upsertClient(this, data.column, data.row);
