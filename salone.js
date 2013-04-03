@@ -5,7 +5,7 @@ var MODE_COLOR_CYCLE_SNAKE = 2;
 var MODE_COLOR_CYCLE_MATRIX = 3;
 
 // Grid dimensions
-var GRID_COLUMNS = 3;
+var GRID_COLUMNS = 2;
 var GRID_ROWS = 2;
 
 // Starting mode
@@ -66,8 +66,8 @@ function removeClient(socket) {
 
 // Look up a socket in the grid and return its row and column indexes
 function findSocketInGrid(socket) {
-    for (column = 0; column < GRID_COLUMNS; column++) {
-        for (row = 0; row < GRID_ROWS; row++) {
+    for (var column = 0; column < GRID_COLUMNS; column++) {
+        for (var row = 0; row < GRID_ROWS; row++) {
             if (grid[column][row] == socket) {
                 return { row: row, column: column };
             }
@@ -83,19 +83,24 @@ function findNextSocket(socket) {
         return; // undefined
 
     // find "next" socket (grid is traversed horizontally)
-
+	var row = position.row;
+	var column = position.column;
+	console.log('looking for successor of grid[',column, '][',row, ']');
+	
     // scan current row from next column to last column
     for (column = position.column + 1; column < GRID_COLUMNS; column++) {
-        // console.log('typeof(grid[',column, '][',row, ']) =', typeof(grid[column][row]));
+        console.log('scan1 (until end of current row): typeof(grid[',column, '][',row, ']) =', typeof(grid[column][row]));
         if ((typeof(grid[column][row]) !== 'undefined')) {
+			console.log('next socket found');
             return grid[column][row];
         }
     }
     // scan from first column of next row to end of grid
     for (row = position.row + 1; row < GRID_ROWS; row++) {
         for (column = 0; column < GRID_COLUMNS; column++) {
-            // console.log('typeof(grid[',column, '][',row, ']) =', typeof(grid[column][row]));
+            console.log('scan2 (rows below): typeof(grid[',column, '][',row, ']) =', typeof(grid[column][row]));
             if ((typeof(grid[column][row]) !== 'undefined')) {
+            	console.log('next socket found');
                 return grid[column][row];
             }
         }
@@ -103,14 +108,16 @@ function findNextSocket(socket) {
     // scan from beginning of grid to current socket
     for (row = 0; row <= position.row; row++) {
         for (column = 0; column <= position.column; column++) {
-            // console.log('typeof(grid[',column, '][',row, ']) =', typeof(grid[column][row]));
+            console.log('scan3 (from beginning to current): typeof(grid[',column, '][',row, ']) =', typeof(grid[column][row]));
             if ((typeof(grid[column][row]) !== 'undefined')) {
+            	console.log('next socket found');
                 return grid[column][row];
             }
         }
     }
 
     // socket not found
+    console.log('next socket NOT found');
     return; // undefined
 }
 
