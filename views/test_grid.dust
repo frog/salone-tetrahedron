@@ -9,12 +9,18 @@
   <body>
 	<h1>{title}</h1>
 	<script>
+		function closeThemAll() {
+			for (var i in windows) {
+				windows[i].close();
+			}
+		}
 		var grid = {};
-
+		var windows = [];
 		function popNext() {
-			var pars = 'width='+width+',height='+height+',left='+x+',top='+y+',screenX='+x+',screenY='+y;
+			var pars = 'menubar=no,toolbar=no,titlebar=no,status=no,width='+width+',height='+height+',left='+x+',top='+y+',screenX='+x+',screenY='+y;
 			console.log('pars' , pars);
-			window.open('http://localhost:3000',i+'x'+j,pars);
+			var win = window.open('http://localhost:3000',i+'x'+j,pars);
+			windows.push(win);
 			i++;
 			if (i >= grid.cols) {
 				i = 0;
@@ -23,8 +29,8 @@
 					return;
 				}
 			}
-			x = width * i;
-			y = height * j;
+			x = width * j;
+			y = height * i;
 			setTimeout(popNext, 3000);
 		}
 
@@ -39,6 +45,8 @@
 
 		popNext();
 	</script>
+
+	<button onclick="closeThemAll();">Close Them All</button>
   </body>
 </html>
 
