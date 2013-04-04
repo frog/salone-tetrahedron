@@ -19,7 +19,6 @@ for (var i = 0; i < GRID_COLUMNS; i++) {
 }
 var socketCounter = 0; // track number of clients
 
-/*
 function upsertClient(socket, row, column) {
     // Remove client from grid (if present)
     removeClient(socket);
@@ -45,7 +44,6 @@ function upsertClient(socket, row, column) {
     socket.emit('position', { row: row, column: column });
 
 }
-*/
 
 // Look for an empty slot in the grid and return its row and column indexes
 function firstAvailableSlot() {

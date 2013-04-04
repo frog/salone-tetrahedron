@@ -219,11 +219,18 @@ define(['three', 'stats', 'jquery_fullscreen', 'tween', 'socket.io'], function (
                 break;
             case 70: // 'f' key
                 $('body').fullscreen();
-                init();
+		setupTween();
+		resetRenderer();
+                // init();
+		// animate();
                 break;
             case 83: // 's' key
                 $(stats.domElement).toggle();
                 break;
+	    case 82: // 'r' key
+                 socket.emit('startnext', { 'posx': mesh.position.x, 'posy': mesh.position.y,
+                      'rotx': mesh.rotation.x, 'roty': mesh.rotation.y });
+		 break;	
         }
     }, false);
 
