@@ -12,7 +12,7 @@ define(['comm', 'three', 'stats', 'jquery_fullscreen', 'tween'], function (comm)
 
     var width = viewport().width;
     var height = viewport().height;
-    var radius = height / 2;
+    var radius;
 
     var screenStartPosition, screenEndPosition;
     var worldStartPosition, worldEndPosition;
@@ -30,7 +30,7 @@ define(['comm', 'three', 'stats', 'jquery_fullscreen', 'tween'], function (comm)
     });
 
     function init() {
-        radius = 0.6;
+        radius = 0.8;
         // create the scene
         scene = new THREE.Scene();
         scene.add(camera);
@@ -40,7 +40,7 @@ define(['comm', 'three', 'stats', 'jquery_fullscreen', 'tween'], function (comm)
         material = new THREE.MeshBasicMaterial({
             color: 0xfcf395,
             wireframe: true,
-            wireframeLinewidth: 8,
+            wireframeLinewidth: 24,
             side: THREE.DoubleSide
         });
         mesh = new THREE.Mesh(geometry, material);
@@ -85,7 +85,7 @@ define(['comm', 'three', 'stats', 'jquery_fullscreen', 'tween'], function (comm)
 
         var easing = TWEEN.Easing.Linear.None;
         var delay = 0;
-        var duration = 3000;
+        var duration = 4000;
 
         // build the tween to go from left to right
         var tweenHead = new TWEEN.Tween(pos)

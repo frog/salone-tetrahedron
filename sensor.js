@@ -5,11 +5,11 @@
  * If serial connection is not detected, will fire up a simple keypress based
  * emulation mode.
  */
-define(['util', 'serialport', 'events'], function (util, serial, events) {
+define(['util', 'serialport', 'events'], function (util, serialport, events) {
 
     //if you change this, be sure to change also on Arduino side!
     var baud_rate = 115200;
-    var SerialPort = serial.SerialPort;
+    var SerialPort = serialport.SerialPort;
 
     //self referencing var. Also known as 'that'.
     var self;
@@ -59,7 +59,7 @@ define(['util', 'serialport', 'events'], function (util, serial, events) {
 
         self.serialPort = new SerialPort(serial_port, {
             baudrate: baud_rate,
-            parser: serial.parsers.readline("\n")
+            parser: serialport.parsers.readline("\n")
         });
 
         self.serialPort.on('error', function (err) {
@@ -77,10 +77,10 @@ define(['util', 'serialport', 'events'], function (util, serial, events) {
         var handleData = function (data) {
             //received data from Arduino. Do something here!
             if (data.indexOf("->") == 0) {
-                var cmd = data.substring(2);
-                if ('ON'.equals(cmd)) {
+                var cmd = data.substring(2).trim();
+                if ('ON' === cmd) {
                     self.emit('on');
-                } else if ('OFF'.equals(cmd)) {
+                } else if ('OFF' === cmd) {
                     self.emit('off');
                 } else {
                     self.emit('distance', data.substring(2));
@@ -93,7 +93,7 @@ define(['util', 'serialport', 'events'], function (util, serial, events) {
 
         self.serialPort.on('open', function () {
             console.log('--> Serial OPEN');
-            serialPort.on('data', handleData);
+            self.serialPort.on('data', handleData);
         });
 
         self.serialPort.on('close', function () {
@@ -119,7 +119,7 @@ define(['util', 'serialport', 'events'], function (util, serial, events) {
      * Doesn't need to have a serial connection up first
      */
     Sensor.prototype.list = function () {
-        serial.list(function (err, result) {
+        serialport.list(function (err, result) {
             console.log("--- SERIAL PORTS LIST ---");
             for (var i in result) {
                 console.log(result[i].comName);

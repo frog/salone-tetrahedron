@@ -50,20 +50,6 @@ var grid = require('./salone')({app: app, io: io, DEV: DEV });
 console.log('grid ', grid);
 require('./routes')({app: app, grid: grid});
 
-requirejs(['sensor'], function (Sensor) {
-    var sensor = new Sensor();
-    sensor.on('on', function () {
-        console.log('SENSOR -> hand detected');
-    });
-    sensor.on('off', function () {
-        console.log('SENSOR -> hand removed');
-    });
-    sensor.on('distance', function (cm) {
-        console.log('SENSOR -> hand at',cm,' cm');
-    });
-    sensor.connect('/dev/trytrytry');
-});
-
 
 
 

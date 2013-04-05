@@ -1,3 +1,9 @@
+//dependencies
+var requirejs = require('requirejs');
+
+requirejs.config({
+    nodeRequire: require
+});
 // Mode constants
 var MODE_OFF = 0;
 var MODE_COLOR_CYCLE_SYNC = 1;
@@ -47,9 +53,9 @@ function upsertClient(socket, row, column) {
 
 // Look for an empty slot in the grid and return its row and column indexes
 function firstAvailableSlot() {
-	for (var column = 0; column < GRID_COLUMNS; column++) {
-		for (var row = 0; row < GRID_ROWS; row++) {
-			if (typeof(grid[column][row]) == 'undefined') {
+    for (var column = 0; column < GRID_COLUMNS; column++) {
+        for (var row = 0; row < GRID_ROWS; row++) {
+            if (typeof(grid[column][row]) == 'undefined') {
                 return { row: row, column: column };
             }
         }
@@ -59,16 +65,16 @@ function firstAvailableSlot() {
 
 // Add a client to first available slot, if any
 function addClient(socket) {
-	var position = firstAvailableSlot();
-	if (typeof(position) !== 'undefined') {
-		// available slot found, adding client and returning its position
-		grid[position.column][position.row] = socket;
-		socketCounter++;
-		console.log("upsert at column ", position.column, ", row ", position.row, "; counter = ", socketCounter);
-	}
-	// return position (undefined if no available was found)
-	return position;
-}				
+    var position = firstAvailableSlot();
+    if (typeof(position) !== 'undefined') {
+        // available slot found, adding client and returning its position
+        grid[position.column][position.row] = socket;
+        socketCounter++;
+        console.log("upsert at column ", position.column, ", row ", position.row, "; counter = ", socketCounter);
+    }
+    // return position (undefined if no available was found)
+    return position;
+}
 
 function removeClient(socket) {
     // Check if client is present
@@ -83,7 +89,7 @@ function removeClient(socket) {
 
     // Delete client from grid
     if (oldRow != -1) {
-        console.log('remove client at '+oldColumn+', '+oldRow);
+        console.log('remove client at ' + oldColumn + ', ' + oldRow);
         grid[oldColumn][oldRow] = undefined;
         socketCounter--;
     }
@@ -108,24 +114,24 @@ function findNextSocket(socket) {
         return; // undefined
 
     // find "next" socket (grid is traversed horizontally)
-	var row = position.row;
-	var column = position.column;
-	console.log('looking for successor of grid[',column, '][',row, ']');
-	
+    var row = position.row;
+    var column = position.column;
+    console.log('looking for successor of grid[', column, '][', row, ']');
+
     // scan current row from next column to last column
     for (column = position.column + 1; column < GRID_COLUMNS; column++) {
-        console.log('scan1 (until end of current row): typeof(grid[',column, '][',row, ']) =', typeof(grid[column][row]));
+        console.log('scan1 (until end of current row): typeof(grid[', column, '][', row, ']) =', typeof(grid[column][row]));
         if ((typeof(grid[column][row]) !== 'undefined')) {
-			console.log('next socket found');
+            console.log('next socket found');
             return grid[column][row];
         }
     }
     // scan from first column of next row to end of grid
     for (row = position.row + 1; row < GRID_ROWS; row++) {
         for (column = 0; column < GRID_COLUMNS; column++) {
-            console.log('scan2 (rows below): typeof(grid[',column, '][',row, ']) =', typeof(grid[column][row]));
+            console.log('scan2 (rows below): typeof(grid[', column, '][', row, ']) =', typeof(grid[column][row]));
             if ((typeof(grid[column][row]) !== 'undefined')) {
-            	console.log('next socket found');
+                console.log('next socket found');
                 return grid[column][row];
             }
         }
@@ -133,9 +139,9 @@ function findNextSocket(socket) {
     // scan from beginning of grid to current socket
     for (row = 0; row <= position.row; row++) {
         for (column = 0; column <= position.column; column++) {
-            console.log('scan3 (from beginning to current): typeof(grid[',column, '][',row, ']) =', typeof(grid[column][row]));
+            console.log('scan3 (from beginning to current): typeof(grid[', column, '][', row, ']) =', typeof(grid[column][row]));
             if ((typeof(grid[column][row]) !== 'undefined')) {
-            	console.log('next socket found');
+                console.log('next socket found');
                 return grid[column][row];
             }
         }
@@ -155,15 +161,15 @@ module.exports = function (opts) {
         // upsertClient(socket, -1, -1);
         var position = addClient(socket);
         if (typeof(position !== 'undefined')) {
-			// Inform client of position
-			this.emit('position', position);
-			if (socketCounter == 1) {
-				console.log('first client detected, sending start signal');
-				this.emit('start');
-			}
-		} else {
-			this.emit('server full');
-		}
+            // Inform client of position
+            this.emit('position', position);
+            if (socketCounter == 1) {
+                console.log('first client detected, sending start signal');
+                this.emit('start');
+            }
+        } else {
+            this.emit('server full');
+        }
 
         socket.on('config', function (data) {
             upsertClient(this, data.column, data.row);
@@ -190,59 +196,90 @@ module.exports = function (opts) {
 
 var advance = 10;
 var colorCounter = 0;
-var beat = 0
+var beat = 0;
+var blankmode = false;
 
-setInterval((function () {
+requirejs(['sensor'], function (Sensor) {
+    var sensor = new Sensor();
+    sensor.on('on', function () {
+        console.log('SENSOR -> hand detected');
+        blankmode = true;
+        tick();
+    });
+    sensor.on('off', function () {
+        console.log('SENSOR -> hand removed');
+        blankmode = false;
+        tick();
+    });
+    sensor.on('distance', function (cm) {
+        console.log('SENSOR -> hand at', cm, ' cm');
+    });
+    sensor.connect('/dev/tty.usbserial-A6004bpf');
+});
 
-    //console.log('tick');
+function tick() {
+    if (blankmode) {
+        for (var column = 0; column < GRID_COLUMNS; column++) {
+            for (var row = 0; row < GRID_ROWS; row++) {
+                var clientSocket = grid[column][row];
 
-    // Update all clients...
-    for (var column = 0; column < GRID_COLUMNS; column++) {
-        for (var row = 0; row < GRID_ROWS; row++) {
-            var clientSocket = grid[column][row];
-
-            var clientNo = column * GRID_ROWS + row;
-
-            var strColor = '#000000';
-            if (mode == MODE_OFF) {
-                // none
-
-            } else if (mode == MODE_COLOR_CYCLE_SYNC) {
-                var color = colorCounter + clientNo * advance;
-                if (color > 255) {
-                    color = color - 255;
+                if (clientSocket) {
+                    clientSocket.emit('update', { bgcolor: '#000000' });
                 }
-                strColor = '#' + (255 * 255 * color + 255 * 255 + color).toString(16);
-
-            } else if (mode == MODE_COLOR_CYCLE_SNAKE) {
-                var color = colorCounter + clientNo * advance;
-                if (color > 255) {
-                    color = color - 255;
-                }
-                strColor = '#' + (255 * 255 * color + 255 * 255 + color).toString(16);
-
-            }
-
-            if (clientSocket) {
-                clientSocket.emit('update', { bgcolor: strColor });
             }
         }
-    }
+    } else {
+        //console.log('tick');
 
-    if (mode == MODE_COLOR_CYCLE_SNAKE ||
-        mode == MODE_COLOR_CYCLE_SYNC) {
+        // Update all clients...
+        for (var column = 0; column < GRID_COLUMNS; column++) {
+            for (var row = 0; row < GRID_ROWS; row++) {
+                var clientSocket = grid[column][row];
 
-        colorCounter++;
-        if (colorCounter >= 255) {
-            colorCounter = 0;
+                var clientNo = column * GRID_ROWS + row;
+
+                var strColor = '#000000';
+                if (mode == MODE_OFF) {
+                    // none
+
+                } else if (mode == MODE_COLOR_CYCLE_SYNC) {
+                    var color = colorCounter + clientNo * advance;
+                    if (color > 255) {
+                        color = color - 255;
+                    }
+                    strColor = '#' + (255 * 255 * color + 255 * 255 + color).toString(16);
+
+                } else if (mode == MODE_COLOR_CYCLE_SNAKE) {
+                    var color = colorCounter + clientNo * advance;
+                    if (color > 255) {
+                        color = color - 255;
+                    }
+                    strColor = '#' + (255 * 255 * color + 255 * 255 + color).toString(16);
+
+                }
+
+                if (clientSocket) {
+                    clientSocket.emit('update', { bgcolor: strColor });
+                }
+            }
         }
 
-    }
-    beat++;
+        if (mode == MODE_COLOR_CYCLE_SNAKE ||
+            mode == MODE_COLOR_CYCLE_SYNC) {
 
-    if (beat % 100 == 0) {
-        //mode++;
-    }
+            colorCounter++;
+            if (colorCounter >= 255) {
+                colorCounter = 0;
+            }
 
-}), 100);
+        }
+        beat++;
+
+        if (beat % 100 == 0) {
+            //mode++;
+        }
+    }
+}
+
+setInterval(tick, 100);
 
