@@ -1,10 +1,10 @@
-/* This is the Tetralogo version that connects to the node server
+/** This is the Tetralogo version that connects to the node server
  and uses socket events to pass the animation from a browser to
  the other.
 
  Code should be refactored and merged with the single-page Tetralogo.
  */
-define(['three', 'stats', 'jquery_fullscreen', 'tween', 'socket.io'], function () {
+define(['comm', 'three', 'stats', 'jquery_fullscreen', 'tween'], function (comm) {
     var camera, scene, renderer, geometry, material, mesh;
 
     var pause = false;
@@ -20,9 +20,7 @@ define(['three', 'stats', 'jquery_fullscreen', 'tween', 'socket.io'], function (
 
     var triggered = false;
 
-    var socket = io.connect();
-
-    socket.on('start', function (data) {
+    comm.registerForStart( function (data) {
         console.log('received start event with data', data);
         if (data) {
             mesh.rotation.x = data.rotx;
@@ -55,7 +53,7 @@ define(['three', 'stats', 'jquery_fullscreen', 'tween', 'socket.io'], function (
         //camera = new THREE.OrthographicCamera(width / -2, width / 2, height / 2, height / -2, -2000, 2000);
 
         camera = new THREE.OrthographicCamera();
-        renderer = new THREE.WebGLRenderer();
+        renderer = new THREE.CanvasRenderer();//.WebGLRenderer();
 
         resetRenderer();
         $('#tetralogo').append(renderer.domElement);
@@ -121,8 +119,7 @@ define(['three', 'stats', 'jquery_fullscreen', 'tween', 'socket.io'], function (
                 if (triggered == false) {
                     console.log('TRIGGER NEXT WINDOW', mesh.position.x, mesh.position.y, mesh.rotation.x, mesh.rotation.y);
                     triggered = true;
-                    socket.emit('startnext', { 'posx': mesh.position.x, 'posy': mesh.position.y,
-                        'rotx': mesh.rotation.x, 'roty': mesh.rotation.y });
+                    comm.sendStartNext({'rotx': mesh.rotation.x, 'roty': mesh.rotation.y });
                 }
             } else {
                 if (triggered == true) {
@@ -228,8 +225,7 @@ define(['three', 'stats', 'jquery_fullscreen', 'tween', 'socket.io'], function (
                 $(stats.domElement).toggle();
                 break;
 	    case 82: // 'r' key
-                 socket.emit('startnext', { 'posx': mesh.position.x, 'posy': mesh.position.y,
-                      'rotx': mesh.rotation.x, 'roty': mesh.rotation.y });
+                comm.sendStartNext({'rotx': mesh.rotation.x, 'roty': mesh.rotation.y });
 		 break;	
         }
     }, false);
