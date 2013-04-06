@@ -11,8 +11,8 @@ var MODE_COLOR_CYCLE_SNAKE = 2;
 var MODE_COLOR_CYCLE_MATRIX = 3;
 
 // Grid dimensions
-var GRID_COLUMNS = 3;
-var GRID_ROWS = 3;
+var GRID_COLUMNS = 4;
+var GRID_ROWS = 2;
 
 // Starting mode
 var mode = MODE_COLOR_CYCLE_SYNC;
@@ -53,8 +53,8 @@ function upsertClient(socket, row, column) {
 
 // Look for an empty slot in the grid and return its row and column indexes
 function firstAvailableSlot() {
-    for (var column = 0; column < GRID_COLUMNS; column++) {
-        for (var row = 0; row < GRID_ROWS; row++) {
+    for (var row = 0; row < GRID_ROWS; row++) {
+        for (var column = 0; column < GRID_COLUMNS; column++) {
             if (typeof(grid[column][row]) == 'undefined') {
                 return { row: row, column: column };
             }
@@ -70,7 +70,7 @@ function addClient(socket) {
         // available slot found, adding client and returning its position
         grid[position.column][position.row] = socket;
         socketCounter++;
-        console.log("upsert at column ", position.column, ", row ", position.row, "; counter = ", socketCounter);
+        console.log("--->upsert at row ", position.row, ", col ", position.column, "; counter = ", socketCounter);
     }
     // return position (undefined if no available was found)
     return position;
@@ -216,6 +216,11 @@ requirejs(['sensor'], function (Sensor) {
     });
     sensor.connect('/dev/tty.usbserial-A6004bpf');
 });
+
+
+function colorCycle() {
+
+}
 
 function tick() {
     if (blankmode) {
