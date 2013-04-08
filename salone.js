@@ -193,12 +193,6 @@ module.exports = function (opts) {
     return {rows: GRID_ROWS, cols: GRID_COLUMNS};
 };
 
-
-var advance = 10;
-var colorCounter = 0;
-var beat = 0;
-var blankmode = false;
-
 requirejs(['sensor'], function (Sensor) {
     var sensor = new Sensor();
     sensor.on('on', function () {
@@ -221,6 +215,13 @@ requirejs(['sensor'], function (Sensor) {
 function colorCycle() {
 
 }
+
+
+
+var advance = 10;
+var colorCounter = 0;
+var beat = 0;
+var blankmode = false;
 
 function tick() {
     if (blankmode) {

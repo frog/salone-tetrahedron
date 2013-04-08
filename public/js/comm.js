@@ -20,7 +20,12 @@ define(['socket.io'], function(socket) {
     var socket;
 
     function init() {
-        socket = io.connect();
+        socket = io.connect(null, {
+            reconnect: false
+        });
+        socket.on('disconnect', function() {
+          alert('client disconnected! please refresh');
+        });
     }
 
     /**
