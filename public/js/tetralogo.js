@@ -195,7 +195,7 @@ define(['comm', 'three', 'stats', 'jquery_fullscreen', 'tween'], function (comm)
         resetRenderer();
     }
 
-    window.onclick = function (event) {
+    /*window.onclick = function (event) {
         if (pause == true) {
             pause = false;
             animate();
@@ -203,7 +203,7 @@ define(['comm', 'three', 'stats', 'jquery_fullscreen', 'tween'], function (comm)
             pause = true;
         }
         console.log(pause);
-    }
+    }*/
 
 
 // add keyboard controls
@@ -224,8 +224,8 @@ define(['comm', 'three', 'stats', 'jquery_fullscreen', 'tween'], function (comm)
             case 83: // 's' key
                 $(stats.domElement).toggle();
                 break;
-	    case 82: // 'r' key
-                comm.sendStartNext({'rotx': mesh.rotation.x, 'roty': mesh.rotation.y });
+	    /*case 82: // 'r' key
+                comm.sendStartNext({'rotx': mesh.rotation.x, 'roty': mesh.rotation.y });*/
 		 break;	
         }
     }, false);

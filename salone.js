@@ -197,13 +197,10 @@ requirejs(['sensor'], function (Sensor) {
     var sensor = new Sensor();
     sensor.on('on', function () {
         console.log('SENSOR -> hand detected');
-        blankmode = true;
-        tick();
+        colorHandCycle();
     });
     sensor.on('off', function () {
         console.log('SENSOR -> hand removed');
-        blankmode = false;
-        tick();
     });
     sensor.on('distance', function (cm) {
         console.log('SENSOR -> hand at', cm, ' cm');
@@ -211,81 +208,156 @@ requirejs(['sensor'], function (Sensor) {
     sensor.connect('/dev/tty.usbserial-A6004bpf');
 });
 
+var cycleHand;
 
-function colorCycle() {
-
+function clearHandCycle() {
+    if (cycleHand) {
+        clearInterval(cycleHand);
+    }
 }
 
+function colorHandCycle() {
+    clearHandCycle();
+    clearStdCycle();
+    var round = -1;
+
+    function resp() {
+        console.log('RESP');
+        round++;
+        if (round > GRID_ROWS) {
+            clearHandCycle();
+            colorStdCycle();
+        } else if (round >= GRID_ROWS) {
+            setAllScreensTo('#000000');
+        } else {
+            for (var i = 0; i < GRID_ROWS; i++) {
+                var color = round === i ? '#fcf395' : '#000000';
+                console.log('setting row ', i, ' round ', round, color);
+                setRowScreensTo(i, color);
+            }
+        }
+    }
+
+    cycleHand = setInterval(resp, 300);
+    setAllScreensTo('#000000');
+}
 
 
 var advance = 10;
 var colorCounter = 0;
 var beat = 0;
-var blankmode = false;
 
-function tick() {
-    if (blankmode) {
-        for (var column = 0; column < GRID_COLUMNS; column++) {
-            for (var row = 0; row < GRID_ROWS; row++) {
-                var clientSocket = grid[column][row];
-
-                if (clientSocket) {
-                    clientSocket.emit('update', { bgcolor: '#000000' });
-                }
-            }
-        }
-    } else {
-        //console.log('tick');
-
-        // Update all clients...
-        for (var column = 0; column < GRID_COLUMNS; column++) {
-            for (var row = 0; row < GRID_ROWS; row++) {
-                var clientSocket = grid[column][row];
-
-                var clientNo = column * GRID_ROWS + row;
-
-                var strColor = '#000000';
-                if (mode == MODE_OFF) {
-                    // none
-
-                } else if (mode == MODE_COLOR_CYCLE_SYNC) {
-                    var color = colorCounter + clientNo * advance;
-                    if (color > 255) {
-                        color = color - 255;
-                    }
-                    strColor = '#' + (255 * 255 * color + 255 * 255 + color).toString(16);
-
-                } else if (mode == MODE_COLOR_CYCLE_SNAKE) {
-                    var color = colorCounter + clientNo * advance;
-                    if (color > 255) {
-                        color = color - 255;
-                    }
-                    strColor = '#' + (255 * 255 * color + 255 * 255 + color).toString(16);
-
-                }
-
-                if (clientSocket) {
-                    clientSocket.emit('update', { bgcolor: strColor });
-                }
-            }
-        }
-
-        if (mode == MODE_COLOR_CYCLE_SNAKE ||
-            mode == MODE_COLOR_CYCLE_SYNC) {
-
-            colorCounter++;
-            if (colorCounter >= 255) {
-                colorCounter = 0;
-            }
-
-        }
-        beat++;
-
-        if (beat % 100 == 0) {
-            //mode++;
+function setRowScreensTo(row, color) {
+    for (var column = 0; column < GRID_COLUMNS; column++) {
+        var clientSocket = grid[column][row];
+        if (clientSocket) {
+            clientSocket.emit('update', { bgcolor: color });
         }
     }
 }
 
-setInterval(tick, 100);
+function setAllScreensTo(color) {
+    for (var column = 0; column < GRID_COLUMNS; column++) {
+        for (var row = 0; row < GRID_ROWS; row++) {
+            var clientSocket = grid[column][row];
+            if (clientSocket) {
+                clientSocket.emit('update', { bgcolor: color });
+            }
+        }
+    }
+}
 
+function setColumnScreensTo(column, color) {
+    for (var row = 0; row < GRID_ROWS; row++) {
+        var clientSocket = grid[column][row];
+        if (clientSocket) {
+            clientSocket.emit('update', { bgcolor: color });
+        }
+    }
+}
+
+var colorCounter = 0;
+var colors = ['#f8a984', '#e7ab7e',
+    '#d7ae78', '#c7b172', '#b7b26b', '#a6b363',
+    '#94b45b', '#81b553', '#6ab54c', '#4db748',
+    '#53b956', '#57bb68', '#5bbd7c', '#5ebf8d',
+    '#62c29d', '#65c4af', '#68c7c0', '#6bcad2',
+    '#6dcce4', '#84c8d7', '#97c5cc', '#a8c2c2',
+    '#b7bfb7', '#c5bbad', '#d3b7a2',
+    '#dfb298', '#ebad8e'];
+//colors = ['#FF0000','#00FF00','#0000FF'];
+
+function tick() {
+    //console.log('tick');
+
+    for (var column = 0; column < GRID_COLUMNS; column++) {
+        var colorIdx = colorCounter + column;
+        setColumnScreensTo(column, colors[colorIdx % colors.length]);
+    }
+    colorCounter++;
+    colorCounter = colorCounter % colors.length;
+    // Update all clients...
+    /*for (var column = 0; column < GRID_COLUMNS; column++) {
+     for (var row = 0; row < GRID_ROWS; row++) {
+     var clientSocket = grid[column][row];
+
+     var clientNo = column * GRID_ROWS + row;
+
+     var strColor = '#000000';
+     if (mode == MODE_OFF) {
+     // none
+
+     } else if (mode == MODE_COLOR_CYCLE_SYNC) {
+     var color = colorCounter + clientNo * advance;
+     if (color > 255) {
+     color = color - 255;
+     }
+     strColor = '#' + (255 * 255 * color + 255 * 255 + color).toString(16);
+
+     } else if (mode == MODE_COLOR_CYCLE_SNAKE) {
+     var color = colorCounter + clientNo * advance;
+     if (color > 255) {
+     color = color - 255;
+     }
+     strColor = '#' + (255 * 255 * color + 255 * 255 + color).toString(16);
+
+     }
+
+     if (clientSocket) {
+     clientSocket.emit('update', { bgcolor: strColor });
+     }
+     }
+     }
+
+     if (mode == MODE_COLOR_CYCLE_SNAKE ||
+     mode == MODE_COLOR_CYCLE_SYNC) {
+
+     colorCounter++;
+     if (colorCounter >= 255) {
+     colorCounter = 0;
+     }
+
+     }
+     beat++;
+
+     if (beat % 100 == 0) {
+     //mode++;
+     }*/
+}
+
+var standardCycle;
+
+
+function clearStdCycle() {
+    if (standardCycle) {
+        clearInterval(standardCycle);
+    }
+}
+
+function colorStdCycle() {
+    clearHandCycle();
+    clearStdCycle();
+    standardCycle = setInterval(tick, 300);
+}
+
+colorStdCycle();
