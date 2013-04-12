@@ -1,5 +1,5 @@
 //dependencies
-var requirejs = require('requirejs');
+var requirejs = require('requirejs'), util = require('util');
 
 requirejs.config({
     nodeRequire: require
@@ -12,7 +12,7 @@ var MODE_COLOR_CYCLE_MATRIX = 3;
 
 // Grid dimensions
 var GRID_COLUMNS = 4;
-var GRID_ROWS = 2;
+var GRID_ROWS = 4;
 
 // Starting mode
 var mode = MODE_COLOR_CYCLE_SYNC;
@@ -65,15 +65,19 @@ function firstAvailableSlot() {
 
 // Add a client to first available slot, if any
 function addClient(socket) {
-    var position = firstAvailableSlot();
-    if (typeof(position) !== 'undefined') {
-        // available slot found, adding client and returning its position
-        grid[position.column][position.row] = socket;
-        socketCounter++;
-        console.log("--->upsert at row ", position.row, ", col ", position.column, "; counter = ", socketCounter);
+    if (socketCounter < (GRID_COLUMNS * GRID_ROWS)) {
+        var position = firstAvailableSlot();
+        if (typeof(position) !== 'undefined') {
+            // available slot found, adding client and returning its position
+            grid[position.column][position.row] = socket;
+            socketCounter++;
+            console.log("--->upsert at row ", position.row, ", col ", position.column, "; counter = ", socketCounter);
+        }
+        // return position (undefined if no available was found)
+        return position;
     }
-    // return position (undefined if no available was found)
-    return position;
+
+
 }
 
 function removeClient(socket) {
@@ -152,6 +156,8 @@ function findNextSocket(socket) {
     return; // undefined
 }
 
+//var started = false;
+
 module.exports = function (opts) {
 
     io = opts.io;
@@ -161,18 +167,22 @@ module.exports = function (opts) {
         // upsertClient(socket, -1, -1);
         var position = addClient(socket);
         if (typeof(position !== 'undefined')) {
+            /*console.log(util.inspect(socket));
+             console.log(this);*/
             // Inform client of position
             this.emit('position', position);
-            if (socketCounter == 1) {
+            if (socketCounter == (GRID_COLUMNS * GRID_ROWS)) {
                 console.log('first client detected, sending start signal');
-                this.emit('start');
+                socket.emit('start');
+                //started = true;
             }
         } else {
-            this.emit('server full');
+            console.log('SERVER FULL');
+            socket.emit('server full');
         }
 
         socket.on('config', function (data) {
-            upsertClient(this, data.column, data.row);
+            // upsertClient(socket, data.column, data.row);
         });
 
         socket.on('disconnect', function (data) {
@@ -192,15 +202,16 @@ module.exports = function (opts) {
     });
     return {rows: GRID_ROWS, cols: GRID_COLUMNS};
 };
-
+var blankmode = false;
 requirejs(['sensor'], function (Sensor) {
     var sensor = new Sensor();
     sensor.on('on', function () {
         console.log('SENSOR -> hand detected');
-        colorHandCycle();
+        blankmode = true;
     });
     sensor.on('off', function () {
         console.log('SENSOR -> hand removed');
+        blankmode = false;
     });
     sensor.on('distance', function (cm) {
         console.log('SENSOR -> hand at', cm, ' cm');
@@ -238,7 +249,7 @@ function colorHandCycle() {
         }
     }
 
-    cycleHand = setInterval(resp, 300);
+    cycleHand = setInterval(resp, 1000);
     setAllScreensTo('#000000');
 }
 
@@ -288,14 +299,18 @@ var colors = ['#f8a984', '#e7ab7e',
 //colors = ['#FF0000','#00FF00','#0000FF'];
 
 function tick() {
-    //console.log('tick');
+    if (blankmode) {
+        setAllScreensTo('#000000');
+    } else {
+        //console.log('tick');
 
-    for (var column = 0; column < GRID_COLUMNS; column++) {
-        var colorIdx = colorCounter + column;
-        setColumnScreensTo(column, colors[colorIdx % colors.length]);
+        for (var column = 0; column < GRID_COLUMNS; column++) {
+            var colorIdx = colorCounter + column;
+            setColumnScreensTo(column, colors[colorIdx % colors.length]);
+        }
+        colorCounter++;
+        colorCounter = colorCounter % colors.length;
     }
-    colorCounter++;
-    colorCounter = colorCounter % colors.length;
     // Update all clients...
     /*for (var column = 0; column < GRID_COLUMNS; column++) {
      for (var row = 0; row < GRID_ROWS; row++) {

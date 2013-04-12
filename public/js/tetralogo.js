@@ -16,17 +16,19 @@ define(['comm', 'three', 'stats', 'jquery_fullscreen', 'tween'], function (comm)
 
     var screenStartPosition, screenEndPosition;
     var worldStartPosition, worldEndPosition;
-    var worldVisibleWidth;
+    var worldVisibleWidth = 8000;
 
     var triggered = false;
+    var startReceived = false;
 
-    comm.registerForStart( function (data) {
+    comm.registerForStart(function (data) {
         console.log('received start event with data', data);
         if (data) {
             mesh.rotation.x = data.rotx;
             mesh.rotation.y = data.roty;
         }
         setupTween();
+        startReceived = true;
     });
 
     function init() {
@@ -85,7 +87,7 @@ define(['comm', 'three', 'stats', 'jquery_fullscreen', 'tween'], function (comm)
 
         var easing = TWEEN.Easing.Linear.None;
         var delay = 0;
-        var duration = 4000;
+        var duration = 3000;
 
         // build the tween to go from left to right
         var tweenHead = new TWEEN.Tween(pos)
@@ -115,11 +117,13 @@ define(['comm', 'three', 'stats', 'jquery_fullscreen', 'tween'], function (comm)
             TWEEN.update();
             stats.update();
             render();
-            if (mesh.position.x >= worldVisibleWidth) {
+            if (mesh.position.x >= worldVisibleWidth && startReceived) {
                 if (triggered == false) {
+                    console.log("mesh.pos: ", mesh.position.x, "width: ", worldVisibleWidth);
                     console.log('TRIGGER NEXT WINDOW', mesh.position.x, mesh.position.y, mesh.rotation.x, mesh.rotation.y);
                     triggered = true;
                     comm.sendStartNext({'rotx': mesh.rotation.x, 'roty': mesh.rotation.y });
+                    startReceived = false;
                 }
             } else {
                 if (triggered == true) {
@@ -196,14 +200,14 @@ define(['comm', 'three', 'stats', 'jquery_fullscreen', 'tween'], function (comm)
     }
 
     /*window.onclick = function (event) {
-        if (pause == true) {
-            pause = false;
-            animate();
-        } else {
-            pause = true;
-        }
-        console.log(pause);
-    }*/
+     if (pause == true) {
+     pause = false;
+     animate();
+     } else {
+     pause = true;
+     }
+     console.log(pause);
+     }*/
 
 
 // add keyboard controls
@@ -216,17 +220,17 @@ define(['comm', 'three', 'stats', 'jquery_fullscreen', 'tween'], function (comm)
                 break;
             case 70: // 'f' key
                 $('body').fullscreen();
-		setupTween();
-		resetRenderer();
+                resetRenderer();
+                setupTween();
                 // init();
-		// animate();
+                // animate();
                 break;
             case 83: // 's' key
                 $(stats.domElement).toggle();
                 break;
-	    /*case 82: // 'r' key
-                comm.sendStartNext({'rotx': mesh.rotation.x, 'roty': mesh.rotation.y });*/
-		 break;	
+                /*case 82: // 'r' key
+                 comm.sendStartNext({'rotx': mesh.rotation.x, 'roty': mesh.rotation.y });*/
+                break;
         }
     }, false);
 

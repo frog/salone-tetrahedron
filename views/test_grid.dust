@@ -36,8 +36,8 @@
 
 		grid.rows = {grid.rows};
 		grid.cols = {grid.cols};
-		var width = 400;
-		var height = 400;
+		var width = 200;
+		var height = 200;
 		var x = 0;
 		var y = 0;
 		var i = 0;
